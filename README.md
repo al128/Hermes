@@ -1,10 +1,10 @@
 # Hermes
 
-A fast JS utility library with basic DOM manipulation (à la "jQuery") and repeating event creation.
+A fast JS utility library with repeating event creation and basic DOM manipulation (à la _jQuery_).
 
 Supersedes my previous utility library [`SOLO`](https://github.com/al128/SOLO).
 
-Apart of Studio Universe's _Olympus Suite_.
+Maintained for the [`Studio Universe`](http://studiouniver.se) _Olympus Suite_.
 
 # Docs
 
@@ -71,7 +71,11 @@ Add your own multiple element method:
 
 Log shortcut:
 
-    $.log("Something went wrong", eventData);
+    $.log("Something happened", eventData);
+
+Indicate error:
+
+    $.error("Something went wrong");
 
 Get something from your REST API (XHR):
 
