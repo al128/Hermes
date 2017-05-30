@@ -211,7 +211,9 @@
 
   $.newID._id = 0;
 
-  $.log = function(message, e) {
+  $.log = function(message) {
+    if (!message) return;
+
     let showTimestamp = true;
 
     if (this.log.history.length > 0) {
@@ -221,32 +223,43 @@
     }
 
     if (showTimestamp) {
-      console.info($.time + ":");
+      console.info("log timeStamp " + new Date());
     }
 
     this.log.history.push({
       message: message,
-      e: e,
       time: $.time
     });
 
-    if (e) {
-      console.warn(message, e);
-    } else {
-      console.log(message);
-    }
+    console.log.apply(this, arguments);
   }
 
   $.log.history = [];
 
+  $.error = function(message) {
+    var err = new Error();
+    console.error(message);
+    console.error(err.stack);
+  }
+
   // -- Communications
 
-  $.fetch = function(endpoint) {
+  $.fetch = function(endpoint, options) {
+    if (!data) {
+      $.error("Comms error: Missing endpoint from request");
+    }
+
+    options = options || {};
+
     return new Promise((resolve, reject) => {
       let url = this.api + (endpoint || "");
 
       let xhr = new XMLHttpRequest();
-      xhr.open(method, url);
+      xhr.open(options.method || "GET", url, true);
+
+      if (options.contentType) {
+        request.setRequestHeader('Content-Type', options.contentType);
+      }
 
       xhr.onload = function () {
         if (this.status >= 200 && this.status < 300) {
@@ -266,8 +279,23 @@
         });
       };
 
-      xhr.send();
+      xhr.send(options.data);
     });
+  }
+
+  $.send = function(endpoint, data, options) {
+    if (!data) {
+      $.error("Send error: No data to send");
+    }
+
+    var optionsStart = {
+      method: options.method || 'POST',
+      contentType: options.contentType ||
+        'application/x-www-form-urlencoded; charset=UTF-8',
+      data: data
+    }
+
+    return $.fetch(endpoint, options);
   }
 
   $.go = function(url, tab) {
