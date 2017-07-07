@@ -87,6 +87,11 @@
     return this;
   }
 
+  $._.emit = function(eventName, eventData) {
+    var _event = new CustomEvent(eventName, eventData);
+    this.dispatchEvent(_event);
+  }
+
   $._.append = function(el) {
     this.appendChild(el);
   }
@@ -125,6 +130,14 @@
     return this;
   }
 
+  $._.addClass = function(className) {
+    this.classList.add(className);
+  }
+
+  $._.removeClass = function(className) {
+    this.classList.remove(className);
+  }
+
   // -- Array extensions
 
   $.__ = {};
@@ -137,6 +150,14 @@
       }
     }
     return this;
+  }
+
+  $.__.indexOf = function(target) {
+    let index = -1;
+    this.forEach(function(el, i) {
+      el === target ? index = i : null;
+    });
+    return index;
   }
 
   $.__.show = function() {
@@ -358,14 +379,13 @@
       return;
     }
 
-    let updateID = $.newID();
-    let updateObject = {};
-
-    updateObject.id = updateID;
-    updateObject.dirty = true;
-    updateObject.interval = updateData.interval || 0;
-    updateObject.remaining = updateData.hasOwnProperty("numTimes") ? updateData.numTimes : -1;
-    updateObject.time = 0;
+    let updateObject = {
+      id: $.newID(),
+      dirty: false,
+      interval: updateData.interval || 0,
+      repeat: updateData.hasOwnProperty("repeat") ? updateData.repeat : -1,
+      time: $.time
+    };
 
     updateObject.preUpdate = function() {
       if (updateData.preUpdate) {
@@ -374,7 +394,7 @@
     }
 
     updateObject.update = function() {
-      if (this.remaining !== 0 && $.time >= this.time + this.interval) {
+      if (this.repeat !== 0 && $.time >= this.time + this.interval) {
         this.dirty = true;
 
         if (updateData.update) {
@@ -388,8 +408,8 @@
       if (this.dirty) {
         this.time = $.time;
 
-        if (this.remaining > 0) {
-          this.remaining--;
+        if (this.repeat > 0) {
+          this.repeat--;
         }
       }
     }
@@ -407,13 +427,13 @@
       $._updates.push(updateObject);
     }
 
-    if (updateData.run !== false) {
+    if (updateData.run) {
       updateObject.preUpdate();
       updateObject.update();
       updateObject.draw();
     }
 
-    return updateID;
+    return updateObject;
   }
 
   $.removeUpdate = function(updateID) {
@@ -468,6 +488,12 @@
     $._prevTime = now;
   }
 
-  $._scheduleUpdate();
+  // -- Finish
+
+  $._onLoad = function() {
+    $._scheduleUpdate();
+  }
+
+  window.addEventListener("load", $._onLoad);
 
 })(window, (!window.hasOwnProperty('$') ? '$' : '_$'));
