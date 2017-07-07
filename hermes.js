@@ -79,7 +79,7 @@
     return this;
   }
 
-  $._.off = function() {
+  $._.off = function(_events, callback) {
     let events = _events.split(" ");
     for (let i = 0; i < events.length; i++) {
       this.removeEventListener(events[i], callback);
@@ -107,7 +107,7 @@
     return this;
   }
 
-  $._.attr = function(prop, value) {
+  $._.attr = function(prop, value, modifier) {
     if (prop.indexOf("!") === 0) {
       this.removeAttribute(prop);
       return this;
@@ -117,7 +117,11 @@
       return this.getAttribute(prop);
     }
 
-    this.setAttribute(prop, value);
+    if (modifier === undefined) {
+      this.setAttribute(prop, value);
+    } else {
+      this.setAttribute(prop, value, modifier);
+    }
     return this;
   }
 
@@ -223,7 +227,7 @@
     }
 
     if (showTimestamp) {
-      console.info("log timeStamp " + new Date());
+      window.console.info("log timeStamp " + new Date());
     }
 
     this.log.history.push({
@@ -231,34 +235,34 @@
       time: $.time
     });
 
-    console.log.apply(this, arguments);
+    window.console.log.apply(this, arguments);
   }
 
   $.log.history = [];
 
   $.error = function(message) {
     var err = new Error();
-    console.error(message);
-    console.error(err.stack);
+    window.console.error(message);
+    window.console.error(err.stack);
   }
 
   // -- Communications
 
   $.fetch = function(endpoint, options) {
-    if (!data) {
+    if (!endpoint) {
       $.error("Comms error: Missing endpoint from request");
     }
 
     options = options || {};
 
-    return new Promise((resolve, reject) => {
+    return new window.Promise((resolve, reject) => {
       let url = this.api + (endpoint || "");
 
       let xhr = new XMLHttpRequest();
       xhr.open(options.method || "GET", url, true);
 
       if (options.contentType) {
-        request.setRequestHeader('Content-Type', options.contentType);
+        xhr.setRequestHeader('Content-Type', options.contentType);
       }
 
       xhr.onload = function () {
@@ -288,12 +292,12 @@
       $.error("Send error: No data to send");
     }
 
-    var optionsStart = {
-      method: options.method || 'POST',
-      contentType: options.contentType ||
-        'application/x-www-form-urlencoded; charset=UTF-8',
-      data: data
-    }
+    // var optionsStart = {
+    //   method: options.method || 'POST',
+    //   contentType: options.contentType ||
+    //     'application/x-www-form-urlencoded; charset=UTF-8',
+    //   data: data
+    // }
 
     return $.fetch(endpoint, options);
   }
@@ -413,7 +417,11 @@
   }
 
   $.removeUpdate = function(updateID) {
-
+    $._updates.forEach(function(updateObject) {
+      if (updateObject.id === updateID) {
+        // TODO
+      }
+    });
   }
 
   $.update = function() {
