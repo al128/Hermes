@@ -15,7 +15,11 @@
         $._extendSingleNode(query);
         return query;
       } else if (query.length && typeof(query[0]) === "string") {
-        let elArr = parentEl.querySelectorAll(query);
+        let tempElArr = parentEl.querySelectorAll(query);
+        let elArr = [];
+        for (let i = 0; i < tempElArr.length; i++) {
+          elArr[i] = tempElArr[i];
+        }
         $._extendMultiNode(elArr);
         return elArr;
       }
@@ -141,24 +145,6 @@
   // -- Array extensions
 
   $.__ = {};
-
-  $.__.forEach = function(eachFunc) {
-    let arr = this;
-    if (arr.length > 0 && typeof(eachFunc) === "function") {
-      for (let i = 0; i < arr.length; i++) {
-        eachFunc(arr[i], i, arr);
-      }
-    }
-    return this;
-  }
-
-  $.__.indexOf = function(target) {
-    let index = -1;
-    this.forEach(function(el, i) {
-      el === target ? index = i : null;
-    });
-    return index;
-  }
 
   $.__.show = function() {
     this.forEach(function(el) {
