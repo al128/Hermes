@@ -1,13 +1,13 @@
 (function(_scope, _hermes) {
 
-  let find = function(that, query) {
-    let parentEl = that;
+  var find = function(that, query) {
+    var parentEl = that;
     if (!that.querySelector) {
       parentEl = document;
     }
 
     if (typeof(query) === "string") {
-      let el = parentEl.querySelector(query);
+      var el = parentEl.querySelector(query);
       $._extendSingleNode(el);
       return el;
     } else if (typeof(query) === "object") {
@@ -15,9 +15,9 @@
         $._extendSingleNode(query);
         return query;
       } else if (query.length && typeof(query[0]) === "string") {
-        let tempElArr = parentEl.querySelectorAll(query);
-        let elArr = [];
-        for (let i = 0; i < tempElArr.length; i++) {
+        var tempElArr = parentEl.querySelectorAll(query);
+        var elArr = [];
+        for (var i = 0; i < tempElArr.length; i++) {
           elArr[i] = tempElArr[i];
         }
         $._extendMultiNode(elArr);
@@ -26,11 +26,11 @@
     }
   }
 
-  let $ = function(query) {
+  var $ = function(query) {
     // Pass in `query` [`query`] `<element>`
 
     if (typeof(query) === "string" && query.indexOf("<") === 0) {
-      let el = document.createElement(query
+      var el = document.createElement(query
         .replace("<", "").replace(">", "")
       );
       $._extendSingleNode(el);
@@ -52,7 +52,7 @@
   }
 
   $._.getBounds = function() {
-    let bounds = this._$bounds;
+    var bounds = this._$bounds;
 
     if (($.time !== this._$accessed && ($._scrolled || $._resized)) || !bounds) {
       bounds = this.getBoundingClientRect();
@@ -69,23 +69,23 @@
   }
 
   $._.isVisible = function() {
-    let top = this.getTop();
-    let height = this.getBounds().height;
-    let bottom = top + height;
+    var top = this.getTop();
+    var height = this.getBounds().height;
+    var bottom = top + height;
     return $.scrollY + $.screenHeight >= top && $.scrollY < bottom;
   }
 
   $._.on = function(_events, callback) {
-    let events = _events.split(" ");
-    for (let i = 0; i < events.length; i++) {
+    var events = _events.split(" ");
+    for (var i = 0; i < events.length; i++) {
       this.addEventListener(events[i], callback);
     }
     return this;
   }
 
   $._.off = function(_events, callback) {
-    let events = _events.split(" ");
-    for (let i = 0; i < events.length; i++) {
+    var events = _events.split(" ");
+    for (var i = 0; i < events.length; i++) {
       this.removeEventListener(events[i], callback);
     }
     return this;
@@ -118,7 +118,7 @@
 
   $._.attr = function(prop, value, modifier) {
     if (prop.indexOf("!") === 0) {
-      this.removeAttribute(prop);
+      this.removeAttribute(prop.split("!")[1]);
       return this;
     }
 
@@ -188,7 +188,7 @@
 
   $._extendSingleNode = function(el) {
     if (el) {
-      for (let key in $._) {
+      for (var key in $._) {
         if (!el[key]) {
           el[key] = $._[key];
         }
@@ -200,7 +200,7 @@
     if (elArr) {
       elArr.multi = true;
 
-      for (let key in $.__) {
+      for (var key in $.__) {
         if (!elArr[key]) {
           elArr[key] = $.__[key];
         }
@@ -215,7 +215,7 @@
   // -- Debugging
 
   $.newID = function() {
-    let newID = _hermes + "_" + this.newID._id;
+    var newID = _hermes + "_" + this.newID._id;
     this.newID._id++;
     return newID;
   }
@@ -225,7 +225,7 @@
   $.log = function(message) {
     if (!message) return;
 
-    let showTimestamp = true;
+    var showTimestamp = true;
 
     if (this.log.history.length > 0) {
       if ($.time < this.log.history[this.log.history.length - 1].time + 2000) {
@@ -260,12 +260,17 @@
       $.error("Comms error: Missing endpoint from request");
     }
 
+    if (!window.Promise) {
+      $.error("Comms error: No Promise API");
+      return false;
+    }
+
     options = options || {};
 
-    return new window.Promise((resolve, reject) => {
-      let url = this.api + (endpoint || "");
+    return new window.Promise(function(resolve, reject) {
+      var url = this.api + (endpoint || "");
 
-      let xhr = new XMLHttpRequest();
+      var xhr = new XMLHttpRequest();
       xhr.open(options.method || "GET", url, true);
 
       if (options.contentType) {
@@ -352,6 +357,7 @@
 
   $.start = Date.now();
   $.time = Date.now();
+  $.elapsed = 0;
 
   $._updates = [];
   $._accumulator = 0;
@@ -365,7 +371,7 @@
       return;
     }
 
-    let updateObject = {
+    var updateObject = {
       id: $.newID(),
       dirty: false,
       interval: updateData.interval || 0,
@@ -380,31 +386,32 @@
     }
 
     updateObject.update = function() {
-      if (this.repeat !== 0 && $.time >= this.time + this.interval) {
-        this.dirty = true;
+      if (updateObject.repeat !== 0 && $.time >= this.time + this.interval) {
+        updateObject.dirty = true;
 
         if (updateData.update) {
-          let output = updateData.update();
+          var output = updateData.update();
           if (typeof(output) === "boolean") {
-            this.dirty = output;
+            updateObject.dirty = output;
           }
         }
       }
 
-      if (this.dirty) {
-        this.time = $.time;
+      if (updateObject.dirty) {
+        updateObject.time = $.time;
 
-        if (this.repeat > 0) {
-          this.repeat--;
+        if (updateObject.repeat > 0) {
+          updateObject.repeat--;
         }
       }
     }
 
     updateObject.draw = function() {
-      if (this.dirty && updateData.draw) {
+      if (updateObject.dirty && updateData.draw) {
         updateData.draw();
       }
-      this.dirty = false;
+
+      updateObject.dirty = false;
     }
 
     if (updateObject.priority === -1) {
@@ -442,9 +449,10 @@
   }
 
   $._theUpdate = function(redraw) {
-    let now = Date.now();
+    var now = Date.now();
     $.time = now;
     $._passed = Math.max(100, now - $._prevTime);
+    $.elapsed = $.time - $.start;
 
     // Updates
 
