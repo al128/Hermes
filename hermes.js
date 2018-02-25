@@ -24,7 +24,7 @@
         return elArr;
       }
     }
-  }
+  };
 
   var $ = function(query) {
     // Pass in `query` [`query`] `<element>`
@@ -38,7 +38,7 @@
     }
 
     return find(this, query);
-  }
+  };
 
   _scope[_hermes] = $;
   window.___$hermes = $;
@@ -49,7 +49,7 @@
 
   $._.find = function(query) {
     return find(this, query);
-  }
+  };
 
   $._.getBounds = function() {
     var bounds = this._$bounds;
@@ -62,18 +62,18 @@
     this.getBounds._$accessed = $.time;
 
     return bounds;
-  }
+  };
 
   $._.getTop = function() {
     return this.getBounds().top + $.scrollY;
-  }
+  };
 
   $._.isVisible = function() {
     var top = this.getTop();
     var height = this.getBounds().height;
     var bottom = top + height;
     return $.scrollY + $.screenHeight >= top && $.scrollY < bottom;
-  }
+  };
 
   $._.on = function(_events, callback) {
     var events = _events.split(" ");
@@ -81,7 +81,7 @@
       this.addEventListener(events[i], callback);
     }
     return this;
-  }
+  };
 
   $._.off = function(_events, callback) {
     var events = _events.split(" ");
@@ -89,32 +89,35 @@
       this.removeEventListener(events[i], callback);
     }
     return this;
-  }
+  };
 
   $._.emit = function(eventName, eventData) {
     var _event = new CustomEvent(eventName, eventData);
     this.dispatchEvent(_event);
-  }
+    return this;
+  };
 
   $._.append = function(el) {
     this.appendChild(el);
-  }
+    return this;
+  };
 
   $._.prepend = function(el) {
     if (this.firstChild) {
       this.insertBefore(el, this.firstChild);
     }
-  }
+    return this;
+  };
 
   $._.show = function() {
     this.removeAttribute("aria-hidden");
     return this;
-  }
+  };
 
   $._.hide = function() {
     this.setAttribute("aria-hidden", "true");
     return this;
-  }
+  };
 
   $._.attr = function(prop, value, modifier) {
     if (prop.indexOf("!") === 0) {
@@ -132,15 +135,21 @@
       this.setAttribute(prop, value, modifier);
     }
     return this;
-  }
+  };
 
   $._.addClass = function(className) {
     this.classList.add(className);
-  }
+    return this;
+  };
+
+  $._.hasClass = function(className) {
+    return this.classList.contains(className);
+  };
 
   $._.removeClass = function(className) {
     this.classList.remove(className);
-  }
+    return this;
+  };
 
   // -- Array extensions
 
@@ -151,14 +160,14 @@
       el.show();
     });
     return this;
-  }
+  };
 
   $.__.hide = function() {
     this.forEach(function(el) {
       el.hide();
     });
     return this;
-  }
+  };
 
   $.__.attr = function(prop, value) {
     if (value === undefined) {
@@ -168,21 +177,21 @@
       el.attr(prop, value);
     });
     return this;
-  }
+  };
 
   $.__.on = function(_events, callback) {
     this.forEach(function(el) {
       el.on(_events, callback);
     });
     return this;
-  }
+  };
 
   $.__.off = function(_events, callback) {
     this.forEach(function(el) {
       el.off(_events, callback);
     });
     return this;
-  }
+  };
 
   // -- Extensions
 
@@ -194,7 +203,7 @@
         }
       }
     }
-  }
+  };
 
   $._extendMultiNode = function(elArr) {
     if (elArr) {
@@ -210,7 +219,7 @@
         $._extendSingleNode(el);
       });
     }
-  }
+  };
 
   // -- Debugging
 
@@ -218,12 +227,14 @@
     var newID = _hermes + "_" + this.newID._id;
     this.newID._id++;
     return newID;
-  }
+  };
 
   $.newID._id = 0;
 
   $.log = function(message) {
-    if (!message) return;
+    if (!message) {
+      return;
+    }
 
     var showTimestamp = true;
 
@@ -243,7 +254,7 @@
     });
 
     window.console.log.apply(this, arguments);
-  }
+  };
 
   $.log.history = [];
 
@@ -251,7 +262,7 @@
     var err = new Error();
     window.console.error(message);
     window.console.error(err.stack);
-  }
+  };
 
   // -- Communications
 
@@ -297,7 +308,7 @@
 
       xhr.send(options.data);
     });
-  }
+  };
 
   $.send = function(endpoint, data, options) {
     if (!data) {
@@ -312,7 +323,7 @@
     // }
 
     return $.fetch(endpoint, options);
-  }
+  };
 
   $.go = function(url, tab) {
     if (tab === false) {
@@ -320,7 +331,7 @@
     } else {
       window.open(url, '_blank');
     }
-  }
+  };
 
   // -- Window
 
@@ -335,7 +346,7 @@
 
     $._scrolled = true;
     $.scrollY = window.pageYOffset;
-  }
+  };
 
   window.addEventListener("resize", $._onResize);
 
@@ -349,7 +360,7 @@
     $.scrollY = window.pageYOffset;
 
     $._onResize();
-  }
+  };
 
   window.addEventListener("scroll", $._onScroll);
 
@@ -374,20 +385,42 @@
     var updateObject = {
       id: $.newID(),
       dirty: false,
+      time: $.time,
+
       interval: updateData.interval || 0,
       repeat: updateData.hasOwnProperty("repeat") ? updateData.repeat : -1,
-      time: $.time
+
+      updateOnScroll: updateData.updateOnScroll || false,
+      updateOnResize: updateData.updateOnResize || false,
+
+      _scrolled: false,
+      _resized: false
     };
 
     updateObject.preUpdate = function() {
+      if (updateObject.updateOnScroll) {
+        updateObject._scrolled = $._scrolled;
+      }
+
+      if (updateObject.updateOnResize) {
+        updateObject._resized = $._resized;
+      }
+
       if (updateData.preUpdate) {
         updateData.preUpdate();
       }
-    }
+    };
 
     updateObject.update = function() {
-      if (updateObject.repeat !== 0 && $.time >= this.time + this.interval) {
+      if (updateObject.repeat !== 0 &&
+      $.time >= this.time + this.interval &&
+      (updateObject.updateOnScroll ? updateObject._scrolled : true) &&
+      (updateObject.updateOnResize ? updateObject._resized : true)
+      ) {
         updateObject.dirty = true;
+
+        updateObject._scrolled = false;
+        updateObject._resized = false;
 
         if (updateData.update) {
           var output = updateData.update();
@@ -404,7 +437,7 @@
           updateObject.repeat--;
         }
       }
-    }
+    };
 
     updateObject.draw = function() {
       if (updateObject.dirty && updateData.draw) {
@@ -412,7 +445,7 @@
       }
 
       updateObject.dirty = false;
-    }
+    };
 
     if (updateObject.priority === -1) {
       $._updates.unshift(updateObject);
@@ -427,7 +460,7 @@
     }
 
     return updateObject;
-  }
+  };
 
   $.removeUpdate = function(updateID) {
     $._updates.forEach(function(updateObject) {
@@ -435,18 +468,18 @@
         // TODO
       }
     });
-  }
+  };
 
   $.update = function() {
     $._theUpdate(true);
-  }
+  };
 
   $._scheduleUpdate = function() {
     requestAnimationFrame(function() {
       $._theUpdate();
       $._scheduleUpdate();
     });
-  }
+  };
 
   $._theUpdate = function(redraw) {
     var now = Date.now();
@@ -480,13 +513,13 @@
     $._resized = false;
     $._scrolled = false;
     $._prevTime = now;
-  }
+  };
 
   // -- Finish
 
   $._onLoad = function() {
     $._scheduleUpdate();
-  }
+  };
 
   window.addEventListener("load", $._onLoad);
 
