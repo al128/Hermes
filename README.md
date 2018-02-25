@@ -1,20 +1,19 @@
 # Hermes
 
-A fast JS utility library with repeating event creation and basic DOM manipulation (à la _jQuery_).
+Fast JS utility library for creating event loops (with basic DOM manipulation).
 
-Supersedes my previous utility library [`SOLO`](https://github.com/al128/SOLO).
-
-Maintained for the [`Studio Universe`](http://studiouniver.se) _Olympus Suite_.
+Maintained as part of [`Studio Universe`](https://studiouniverse.co)'s in-house toolkit. For help with styling pages checkout [`Classic`](https://github.com/studiouniverse/Classic).
 
 # Docs
 
-Find a single element (this should be cached):
+Find a single element (this should be cached in a variable):
 
-    let myEl = $("a.submit");
+    let $el = $("a.submit");
 
 Find a child element:
 
     $("a.submit").find(".icon");
+    $el.find(".icon");
 
 Add a click event:
 
@@ -24,23 +23,23 @@ Add a click event:
 
 Chain methods:
 
-    $("a.submit")
+    $el
       .on("click", function() {
         // Do something
       })
-      .show();
+      .addClass("clickable");
 
 Create a new element:
 
-    let mySpan = $("<span>");
+    let $span = $("<span>");
 
 Append a new child element:
 
-    $("a.submit").append($("<span>"));
+    $span.append($("<small>"));
 
 Hide an element:
 
-    [aria-hidden] { display: none }
+    [hidden] { display: none !important; }
 
     $("a.submit").hide();
 
@@ -48,18 +47,25 @@ Change an attribute:
 
     $("a.submit").attr("href", "/contact");
 
-Find multiple elements:
+Change a class:
+
+    $el
+      .addClass("bg-important")
+      .removeClass("bg-primary");
+
+Find multiple elements by wrapping selectors in an array:
 
     $(["a"]);
+    let $messages = $([".error", ".warning"]);
 
 Manipulate multiple elements:
 
-    $(["a"]).forEach(function(el) { el.hide() });
-    $(["a"]).hide();
-    $(["a"]).show();
-    $(["a"]).attr("data-test", "123");
-    $(["a"]).on("mouseenter touchstart", eventHandler);
-    $(["a"]).off("mouseenter touchstart", eventHandler);
+    let $anchors = $(["a"]);
+    $anchors.forEach(function(el) { el.hide() });
+    $anchors.hide();
+    $anchors.attr("data-test", "123");
+    $anchors.on("mouseenter touchstart", eventHandler);
+    $anchors.off("mouseenter touchstart", eventHandler);
 
 Add your own single element method:
 
@@ -73,7 +79,7 @@ Log shortcut:
 
     $.log("Something happened", eventData);
 
-Indicate error:
+Log an error:
 
     $.error("Something went wrong");
 
@@ -88,9 +94,10 @@ Post something to your REST API (XHR):
       .then(successHandler)
       .catch(errorHandler);
 
-Change URL:
+Go to new URL (in a new tab by default):
 
-    $.go("http://studiouniver.se")
+    $.go("https://studiouniverse.co/");
+    $.go("https://studiouniverse.co/#cool-stuff", false);
 
 Create a repeating event:
 
@@ -99,6 +106,15 @@ Create a repeating event:
                       update: function() {
                         $.log($.time);
                       }
-                    })
+                    });
+
+Create a repeating on-scroll event:
+
+    var updateID = $.addUpdate({
+                      updateOnScroll: true,
+                      update: function() {
+                        $.log($.time);
+                      }
+                    });
 
 [![forthebadge](http://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](http://forthebadge.com)

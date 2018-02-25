@@ -110,12 +110,12 @@
   };
 
   $._.show = function() {
-    this.removeAttribute("aria-hidden");
+    this.removeAttribute("hidden");
     return this;
   };
 
   $._.hide = function() {
-    this.setAttribute("aria-hidden", "true");
+    this.setAttribute("hidden", "true");
     return this;
   };
 
