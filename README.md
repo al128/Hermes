@@ -2,7 +2,7 @@
 
 Fast JS utility library for creating event loops (with basic DOM manipulation).
 
-Maintained as part of [`Studio Universe`](https://studiouniverse.co)'s in-house toolkit. For help with styling pages checkout [`Classic`](https://github.com/studiouniverse/Classic).
+Maintained as part of [`Studio Universe`](https://studiouniverse.co)'s in-house toolkit. If you need help with CSS and styling pages, please checkout [`Classic`](https://github.com/studiouniverse/Classic).
 
 # Docs
 
