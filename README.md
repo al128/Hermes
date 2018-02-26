@@ -45,7 +45,7 @@ Hide an element:
 
 Change an attribute:
 
-    $("a.submit").attr("href", "/contact");
+    $(["a.contact"]).attr("href", "/contact");
 
 Change a class:
 
@@ -55,12 +55,12 @@ Change a class:
 
 Find multiple elements by wrapping selectors in an array:
 
-    $(["a"]);
+    let $anchors = $(["a"]);
     let $messages = $([".error", ".warning"]);
 
 Manipulate multiple elements:
 
-    let $anchors = $(["a"]);
+    let $clickers = $(["a", "button"]);
     $anchors.forEach(function(el) { el.hide() });
     $anchors.hide();
     $anchors.attr("data-test", "123");
@@ -69,11 +69,18 @@ Manipulate multiple elements:
 
 Add your own single element method:
 
-    $._.myFunction = function() { }
+    $._.myFunction = function(stuff) {
+      this.attr("data-stuff", stuff);
+    }
 
 Add your own multiple element method:
 
-    $.__.myFunction = function() { }
+    $.__.myFunction = function(stuff) {
+      this.forEach(function(el) {
+        el.attr("data-stuff", stuff);
+      });
+      return this;
+    }
 
 Log shortcut:
 
@@ -102,7 +109,7 @@ Go to new URL (in a new tab by default):
 Create a repeating event:
 
     var updateID = $.addUpdate({
-                      interval: 1000,
+                      interval: 1000, // ms
                       update: function() {
                         $.log($.time);
                       }
@@ -116,5 +123,14 @@ Create a repeating on-scroll event:
                         $.log($.time);
                       }
                     });
+
+Access useful variables:
+
+    $.start; // Time Hermes was loaded
+    $.time;
+    $.elapsed; // How long on page
+    $.screenWidth;
+    $.screenHeight;
+    $.scrollY; // Window scroll Y position
 
 [![forthebadge](http://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](http://forthebadge.com)
