@@ -193,6 +193,20 @@
     return this;
   };
 
+  $.__.addClass = function(className) {
+    this.forEach(function(el) {
+      el.addClass(className);
+    });
+    return this;
+  };
+
+  $.__.removeClass = function(className) {
+    this.forEach(function(el) {
+      el.removeClass(className);
+    });
+    return this;
+  };
+
   // -- Extensions
 
   $._extendSingleNode = function(el) {
@@ -393,8 +407,8 @@
       updateOnScroll: updateData.updateOnScroll || false,
       updateOnResize: updateData.updateOnResize || false,
 
-      _scrolled: false,
-      _resized: false
+      _scrolled: true,
+      _resized: true
     };
 
     updateObject.preUpdate = function() {
