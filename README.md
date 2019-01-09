@@ -47,6 +47,10 @@ Change an attribute:
 
     $(["a.contact"]).attr("href", "/contact");
 
+Remove an attribute:
+
+    $(["a.contact"]).attr("!style");
+
 Change a class:
 
     $el
