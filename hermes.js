@@ -293,13 +293,13 @@
     options = options || {};
 
     return new window.Promise(function(resolve, reject) {
-      var url = this.api + (endpoint || "");
+      var url = (endpoint || "");
 
       var xhr = new XMLHttpRequest();
       xhr.open(options.method || "GET", url, true);
 
       if (options.contentType) {
-        xhr.setRequestHeader('Content-Type', options.contentType);
+        xhr.setRequestHeader('Content-Type', options.contentType || "application/json;charset=UTF-8");
       }
 
       xhr.onload = function () {
@@ -358,8 +358,7 @@
     $.screenWidth = window.innerWidth;
     $.screenHeight = window.innerHeight;
 
-    $._scrolled = true;
-    $.scrollY = window.pageYOffset;
+    $._onScroll();
   };
 
   window.addEventListener("resize", $._onResize);
@@ -369,14 +368,16 @@
   $.scrollY = 0;
   $._scrolled = false;
 
+  $._checkScroll = function() {
+    if (window.pageYOffset !== $.scrollY) {
+      $._onScroll();
+    }
+  };
+
   $._onScroll = function() {
     $._scrolled = true;
     $.scrollY = window.pageYOffset;
-
-    $._onResize();
   };
-
-  window.addEventListener("scroll", $._onScroll);
 
   // -- Updating
 
@@ -412,11 +413,11 @@
     };
 
     updateObject.preUpdate = function() {
-      if (updateObject.updateOnScroll) {
+      if (updateObject.updateOnScroll && !updateObject._scrolled) {
         updateObject._scrolled = $._scrolled;
       }
 
-      if (updateObject.updateOnResize) {
+      if (updateObject.updateOnResize && !updateObject._resized) {
         updateObject._resized = $._resized;
       }
 
@@ -500,6 +501,10 @@
     $.time = now;
     $._passed = Math.max(100, now - $._prevTime);
     $.elapsed = $.time - $.start;
+
+    // Scroll check
+
+    $._checkScroll();
 
     // Updates
 
